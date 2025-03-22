@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import io.versionpulse.apispecification.ApiSpecFetcher;
 import io.versionpulse.scanner.ApiGroupScanner;
 import io.versionpulse.scanner.ApiScanner;
 
@@ -19,6 +20,8 @@ public class ScannerTest {
 			List<Method> methods = apiScanner.execute(clazz);
 			for (Method method : methods) {
 				System.out.println(method);
+				ApiSpecFetcher fetcher = new ApiSpecFetcher(method, "");
+				fetcher.fetch();
 			}
 		}
 	}
