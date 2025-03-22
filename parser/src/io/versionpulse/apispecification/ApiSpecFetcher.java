@@ -8,6 +8,7 @@ import io.versionpulse.apispecification.inspector.ResponseInspector;
 import io.versionpulse.apispecification.model.HttpEndPointModel;
 import io.versionpulse.apispecification.model.RequestModel;
 import io.versionpulse.apispecification.model.ResponseModel;
+import io.versionpulse.model.dto.ApiSchemaDto;
 
 
 public class ApiSpecFetcher {
@@ -19,13 +20,21 @@ public class ApiSpecFetcher {
 		this.commonPath = commonPath;
 	}
 	
-	public void fetch() {
+	public ApiSchemaDto fetch() {
 		HttpEndPointModel endpointModel = HttpEndPointInspector.execute(method);
-		if (endpointModel == null) return;
-		System.out.println(endpointModel);
+		if (endpointModel == null) return null;
 		RequestModel requestModel = RequestInspector.execute(method);
-		System.out.println(requestModel);
 		ResponseModel responseModel = ResponseInspector.execute(method);
-		System.out.println(responseModel);
+		
+		ApiSchemaDto apiSchema = new ApiSchemaDto.Builder()
+				.method(endpointModel.httpMethod().name())
+				.path(commonPath+endpointModel.path())
+				.queryString(requestModel.queryString())
+				.parameter(requestModel.pathParameter())
+				.requestBody(requestModel.requestBody())
+				.responseBody(responseModel.responseBody())
+				.build();
+		
+		return apiSchema;
 	}
 }
