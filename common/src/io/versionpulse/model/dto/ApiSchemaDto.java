@@ -1,10 +1,11 @@
-package main.java.model.dto;
+package io.versionpulse.model.dto;
 
 import java.util.List;
-import main.java.model.PathParameter;
-import main.java.model.QueryString;
-import main.java.model.RequestBody;
-import main.java.model.ResponseBody;
+
+import io.versionpulse.model.PathParameter;
+import io.versionpulse.model.QueryString;
+import io.versionpulse.model.RequestBody;
+import io.versionpulse.model.ResponseBody;
 
 public record ApiSchemaDto(
         String method,

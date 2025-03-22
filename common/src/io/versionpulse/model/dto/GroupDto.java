@@ -1,4 +1,4 @@
-package main.java.model.dto;
+package io.versionpulse.model.dto;
 
 import java.util.List;
 

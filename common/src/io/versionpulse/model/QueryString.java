@@ -1,4 +1,4 @@
-package main.java.model;
+package io.versionpulse.model;
 
 public record QueryString(String type, String name) {
 

@@ -1,4 +1,4 @@
-package main.java.model;
+package io.versionpulse.model;
 
 public record PathParameter(String type, String name) {
 	

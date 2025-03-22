@@ -1,4 +1,4 @@
-package main.java.model.dto;
+package io.versionpulse.model.dto;
 
 public record ApiDto(
         String name,
