@@ -4,3 +4,4 @@ bin/
 taret/
 .jar
 .settings
+/target/
