@@ -3,7 +3,7 @@
 bin/
 taret/
 .jar
-.settings
+.settings/
 /target/
-
+*.properties
 parser/src/io/versionpulse/sample/
