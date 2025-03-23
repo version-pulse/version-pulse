@@ -4,171 +4,153 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Builder
-@AllArgsConstructor
-public class UpdateDTO {
-	public Parent parent;
-    public Properties properties;
-    public List<Child> children;
+public record UpdateDTO(
+	    Parent parent,
+	    Properties properties,
+	    List<Child> children
+	) {
+
+	    public static record Parent(String database_id) {}
+
+	    @Builder
+	    public static record Properties(
+	        Name name,
+	        Description description,
+	        Path path,
+	        Check check,
+	        Method method
+	    ) {
+
+	        public static record Name(List<Title> title) {
+
+	            public static record Title(Text text) {
+
+	                public static record Text(String content) {}
+	            }
+	            
+	            public static Name of(String apiName) {
+	            	return new Name(List.of(new Title(new Title.Text(apiName))));
+	            }
+	        }
+
+	        public static record Description(List<RichText> rich_text) {
+
+	            public static record RichText(Text text) {
+
+	                public static record Text(String content) {}
+	            }
+	            
+	            public static Description of(String description) {
+	            	return new Description(List.of(new RichText(new RichText.Text(description))));
+	            }
+	        }
+
+	        public static record Path(List<RichText> rich_text) {
+
+	            public static record RichText(Text text) {
+
+	                public static record Text(String content) {}
+	            }
+	            
+	            public static Path of(String path) {
+	            	return new Path(List.of(new RichText(new RichText.Text(path))));
+	            }
+	        }
+
+	        public static record Check(boolean checkbox) {}
+
+	        public static record Method(Select select) {
+
+	            public static record Select(String name) {}
+	            
+	            public static Method of(String httpMethod) {
+	            	return new Method(new Select(httpMethod));
+	            }
+	        }
+	    }
+
+	    @Builder
+	    public static record Child(
+	        String object,
+	        String type,
+	        @JsonInclude(value = Include.NON_NULL) Heading2 heading_2,
+	        @JsonInclude(value = Include.NON_NULL) Paragraph paragraph
+	    ) {
+
+	        public static record Heading2(List<RichText> rich_text) {
+
+	            public static record RichText(String type, Text text) {
+
+	                public static record Text(String content) {}
+	            }
+	            
+	            public static Heading2 of(String type, String content) {
+	            	return new Heading2(List.of(new RichText(type, new RichText.Text(content))));
+	            }
+	        }
+
+	        public static record Paragraph(List<RichText> rich_text) {
+
+	            public static record RichText(String type, Text text) {
+
+	                public static record Text(String content, Link link) {
+
+	                    public static record Link(String url) {}
+	                }
+	            }
+	            
+	            public static Paragraph of(String type, String content) {
+	            	return new Paragraph(List.of(new RichText(type, new RichText.Text(content, null))));
+	            }
+	        }
+	        
+	        public static Child of(String object, String type, Object content) {
+	        	if (content instanceof Heading2) {
+	        		return Child.builder()
+		        			.object(object)
+		        			.type(type)
+		        			.heading_2((Heading2) content)
+		        			.build();
+	        	}
+	        	else if (content instanceof Paragraph) {
+	        		return Child.builder()
+		        			.object(object)
+		        			.type(type)
+		        			.paragraph((Paragraph) content)
+		        			.build();
+	        	}
+	        	return null;
+	        }
+	    }
     
-    @Override
-    public String toString() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "{}";
-        }
-    }
-
-    @Builder
-    @AllArgsConstructor
-    public static class Parent {
-        public String database_id;
-    }
-
-    @Builder
-    @AllArgsConstructor
-    public static class Properties {
-        public Name name;
-        public Description description;
-        public Path path;
-        public Check check;
-        public Method method;
-
-        @Builder
-        @AllArgsConstructor
-        public static class Name {
-            public List<Title> title;
-
-            @Builder
-            @AllArgsConstructor
-            public static class Title {
-                public Text text;
-
-                @Builder
-                @AllArgsConstructor
-                public static class Text {
-                    public String content;
-                }
-            }
-        }
-
-        @Builder
-        @AllArgsConstructor
-        public static class Description {
-            public List<RichText> rich_text;
-
-            @Builder
-            @AllArgsConstructor
-            public static class RichText {
-                public Text text;
-
-                @Builder
-                @AllArgsConstructor
-                public static class Text {
-                    public String content;
-                }
-            }
-        }
-
-        @Builder
-        @AllArgsConstructor
-        public static class Path {
-            public List<RichText> rich_text;
-
-            @Builder
-            @AllArgsConstructor
-            public static class RichText {
-                public Text text;
-
-                @Builder
-                @AllArgsConstructor
-                public static class Text {
-                    public String content;
-                }
-            }
-        }
-
-        @Builder
-        @AllArgsConstructor
-        public static class Check {
-            public boolean checkbox;
-        }
-
-        @Builder
-        @AllArgsConstructor
-        public static class Method {
-            public Select select;
-            
-            @Builder
-            @AllArgsConstructor
-            public static class Select {
-                public String name;
-            }
-        }
-    }
-
-    @Builder
-    @AllArgsConstructor
-    public static class Child {
-        public String object;
-        public String type;
-        @JsonInclude(value = Include.NON_NULL)
-        public Heading2 heading_2;
-        @JsonInclude(value = Include.NON_NULL)
-        public Paragraph paragraph;
-
-        @Builder
-        @AllArgsConstructor
-        public static class Heading2 {
-            public List<RichText> rich_text;
-
-            @Builder
-            @AllArgsConstructor
-            public static class RichText {
-            	public String type;
-                public Text text;
-
-                @Builder
-                @AllArgsConstructor
-                public static class Text {
-                    public String content;
-                }
-            }
-        }
-
-        @Builder
-        @AllArgsConstructor
-        public static class Paragraph {
-            public List<RichText> rich_text;
-
-            @Builder
-            @AllArgsConstructor
-            public static class RichText {
-            	public String type;
-                public Text text;
-
-                @Builder
-                @AllArgsConstructor
-                public static class Text {
-                    public String content;
-                    public Link link;
-
-                    @Builder
-                    @AllArgsConstructor
-                    public static class Link {
-                        public String url;
-                    }
-                }
-            }
-        }
+	    
+	    public static UpdateDTO of(String databaseId, String apiName, String apiDesc, String apiPath, String httpMethod) {
+	    	Parent parent = new Parent(databaseId);
+	        Properties properties = Properties.builder()
+	        		.name(Properties.Name.of(apiName))
+	        		.description(Properties.Description.of(apiDesc))
+	        		.path(Properties.Path.of(apiPath))
+	        		.check(new Properties.Check(false))
+	        		.method(Properties.Method.of(httpMethod))
+	        		.build();
+	        
+	        // 임시
+	        String type = "text";
+	        String content = "본문내용";
+	        
+	        Child.Heading2 heading = Child.Heading2.of(type, content);
+	        Child.Paragraph paragraph = Child.Paragraph.of(type, content);
+	        Child child1 = Child.of("block", "heading_2", heading);
+	        Child child2 = Child.of("block", "paragraph", paragraph);
+	        
+	    	return UpdateDTO.builder()
+	        		.parent(parent)
+	        		.properties(properties)
+	        		.children(List.of(child1, child2))
+	        		.build();
     }
 }
