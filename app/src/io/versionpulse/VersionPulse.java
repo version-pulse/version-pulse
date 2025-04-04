@@ -21,11 +21,11 @@ public class VersionPulse {
 	
 	public void execute() {
 		Parser parser = new Parser();
-		List<ApiGroupDto> data = parser.execute(packageName);
-		System.out.println(data);
+		List<ApiGroupDto> records = parser.execute(packageName);
+		System.out.println(records);
 		
 		Documentation documentation = new Documentation();
-		documentation.execute(notionKey, pageId, databaseId);
+		documentation.execute(notionKey, pageId, databaseId, records);
 	}
 	
 	public static Builder builder() {
