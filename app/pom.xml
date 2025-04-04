@@ -6,4 +6,17 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>app</artifactId>
+  
+  <dependencies>
+	  <dependency>
+		<groupId>version-pulse</groupId>
+		<artifactId>parser</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	  </dependency>
+	  <dependency>
+		<groupId>version-pulse</groupId>
+		<artifactId>documentation</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	  </dependency>
+  </dependencies>
 </project>

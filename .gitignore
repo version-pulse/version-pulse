@@ -7,3 +7,4 @@ taret/
 /target/
 *.properties
 parser/src/io/versionpulse/sample/
+app/src/io/versionpulse/sample/
