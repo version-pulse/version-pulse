@@ -1,10 +1,14 @@
 package io.versionpulse.client;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.springframework.http.HttpHeaders;
 
 import io.versionpulse.dto.UpdateDTO;
+import io.versionpulse.model.dto.ApiDto;
+import io.versionpulse.model.dto.ApiGroupDto;
+import io.versionpulse.util.TableFormatter;
 import io.versionpulse.util.WebClientManager;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +20,17 @@ public class UpdateDatabaseClient {
 	private String notionKey;
 	private String databaseId;
 	private final String url = "https://api.notion.com/v1/pages";
+	private List<ApiGroupDto> records;
 	
 	public void execute() {
+		for (ApiGroupDto group : records) {
+			for (ApiDto api : group.apis()) {
+				sendSingleRequest(group.groupTag(), api);
+			}
+		}	
+	}
+	
+	public void sendSingleRequest(String groupTag, ApiDto api) {
 		WebClientManager webManager = new WebClientManager(url);
 		
 		HttpHeaders header = new HttpHeaders();
@@ -25,7 +38,20 @@ public class UpdateDatabaseClient {
         header.add("Authorization", "Bearer "+notionKey);
         header.add("Notion-Version", "2022-06-28");
         
-        UpdateDTO requestBody = UpdateDTO.of(databaseId, "API이름", "API설명", "API경로", "GET");
+        UpdateDTO requestBody = UpdateDTO.of(databaseId, 
+        		api.name(), 
+        		api.description(), 
+        		api.apiSchemaDto().path(),
+        		api.apiSchemaDto().method(),
+		        "Query String",
+		        TableFormatter.toTable(api.apiSchemaDto().queryString()),
+		        "Parameter",
+		        TableFormatter.toTable(api.apiSchemaDto().parameter()),
+		        "RequestBody",
+		        api.apiSchemaDto().requestBody().json(),
+		        "ResponseBody",
+		        api.apiSchemaDto().responseBody().json());
+        
         
         Mono<String> response = webManager.asyncRequest(url, header, requestBody, String.class);
         
