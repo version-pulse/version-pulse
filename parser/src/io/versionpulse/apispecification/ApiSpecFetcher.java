@@ -9,6 +9,7 @@ import io.versionpulse.apispecification.model.HttpEndPointModel;
 import io.versionpulse.apispecification.model.RequestModel;
 import io.versionpulse.apispecification.model.ResponseModel;
 import io.versionpulse.model.dto.ApiSchemaDto;
+import io.versionpulse.util.Formatter;
 
 
 public class ApiSpecFetcher {
@@ -28,7 +29,7 @@ public class ApiSpecFetcher {
 		
 		ApiSchemaDto apiSchema = new ApiSchemaDto.Builder()
 				.method(endpointModel.httpMethod().name())
-				.path(commonPath+endpointModel.path())
+				.path(commonPath+endpointModel.path()+Formatter.toString(requestModel.queryString()))
 				.queryString(requestModel.queryString())
 				.parameter(requestModel.pathParameter())
 				.requestBody(requestModel.requestBody())
