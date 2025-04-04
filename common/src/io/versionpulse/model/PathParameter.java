@@ -1,6 +1,6 @@
 package io.versionpulse.model;
 
-public record PathParameter(String type, String name) {
+public record PathParameter(String type, String name) implements HttpParameter {
 	
     public static class Builder {
         private String type;

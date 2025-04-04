@@ -2,7 +2,7 @@ package io.versionpulse.model.dto;
 
 import java.util.List;
 
-public record ApiGroupDto(
+public record ApiGroupDto (
         String groupTag,
         List<ApiDto> apis
 ) {
