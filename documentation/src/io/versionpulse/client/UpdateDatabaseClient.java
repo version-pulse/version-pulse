@@ -8,6 +8,8 @@ import org.springframework.http.HttpHeaders;
 import io.versionpulse.dto.UpdateDTO;
 import io.versionpulse.model.dto.ApiDto;
 import io.versionpulse.model.dto.ApiGroupDto;
+import io.versionpulse.util.CodeFormatter;
+import io.versionpulse.util.HeadingFormatter;
 import io.versionpulse.util.TableFormatter;
 import io.versionpulse.util.WebClientManager;
 import lombok.AllArgsConstructor;
@@ -43,15 +45,14 @@ public class UpdateDatabaseClient {
         		api.description(), 
         		api.apiSchemaDto().path(),
         		api.apiSchemaDto().method(),
-		        "Query String",
+		        HeadingFormatter.toHeading("Query String"),
 		        TableFormatter.toTable(api.apiSchemaDto().queryString()),
-		        "Parameter",
+		        HeadingFormatter.toHeading("Parameter"),
 		        TableFormatter.toTable(api.apiSchemaDto().parameter()),
-		        "RequestBody",
-		        api.apiSchemaDto().requestBody().json(),
-		        "ResponseBody",
-		        api.apiSchemaDto().responseBody().json());
-        
+		        HeadingFormatter.toHeading("RequestBody"),
+		        CodeFormatter.toCode(api.apiSchemaDto().requestBody().json()),
+		        HeadingFormatter.toHeading("ResponseBody"),
+		        CodeFormatter.toCode(api.apiSchemaDto().responseBody().json()));
         
         Mono<String> response = webManager.asyncRequest(url, header, requestBody, String.class);
         
