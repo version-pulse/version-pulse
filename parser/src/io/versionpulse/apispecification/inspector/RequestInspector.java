@@ -21,7 +21,7 @@ public class RequestInspector {
 	public static RequestModel execute(Method method) {
 		List<QueryString> queryStringList = new ArrayList<>();
 		List<PathParameter> pathParameterList = new ArrayList<>();
-		RequestBody requestbody = null;
+		RequestBody requestbody = new RequestBody();
 		
 		Parameter[] parameters = method.getParameters();
 		for (Parameter parameter : parameters) {
