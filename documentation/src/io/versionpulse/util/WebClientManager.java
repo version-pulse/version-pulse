@@ -1,12 +1,15 @@
 package io.versionpulse.util;
 
-import org.springframework.web.reactive.function.client.WebClient;
+import java.util.logging.Logger;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Mono;
 
 public class WebClientManager {
-
+	private static final Logger logger = Logger.getLogger(WebClientManager.class.getName());
     private final WebClient webClient;
 
     public WebClientManager(String baseUrl) {
@@ -21,8 +24,8 @@ public class WebClientManager {
                 .body(BodyInserters.fromValue(requestBody))
                 .retrieve()
                 .bodyToMono(responseType)
-                .doOnTerminate(() -> System.out.println("API 호출 완료"))
-                .doOnError(error -> System.out.println("API 호출 중 오류 발생: " + error.getMessage()));
+                .doOnTerminate(() -> logger.info("called an API..."))
+                .doOnError(error -> logger.warning("Error occur during calling notion api: " + error.getMessage()));
     }
 
     // 동기 요청 처리

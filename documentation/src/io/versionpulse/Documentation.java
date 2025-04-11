@@ -9,7 +9,6 @@ import io.versionpulse.util.EnvManager;
 public class Documentation {
 	
 	public void execute(String notionKey, String pageId, String databaseId, List<ApiGroupDto> records) {
-		EnvManager envManager = new EnvManager();
 		
 		CreateDatabaseClient cClient = CreateDatabaseClient.builder()
 				.notionKey(notionKey)

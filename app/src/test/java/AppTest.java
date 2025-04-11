@@ -1,11 +1,15 @@
-package io.versionpulse;
+package test.java;
 
+import org.junit.Test;
+
+import io.versionpulse.VersionPulse;
 import io.versionpulse.util.EnvManager;
 
-public class Main {
-	private static EnvManager envManager = new EnvManager();
-	
-	public static void main(String[] args) {
+public class AppTest {
+	@Test
+	public void test() {
+		EnvManager envManager = new EnvManager();
+		
 		VersionPulse.builder()
 		.notionKey(envManager.getValueByKey("NOTION_KEY"))
 		.databaseId(envManager.getValueByKey("DATABASE_ID"))
