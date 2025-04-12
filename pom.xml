@@ -4,12 +4,44 @@
   <artifactId>version-pulse</artifactId>
   <version>0.1.0</version>
   <packaging>pom</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>API 명세서 자동화 도구</description>
+  <url>https://github.com/version-pulse/version-pulse</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>KWON SUHYEON</name>
+      <email>kwonsh4396@gmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/version-pulse/version-pulse/tree/master</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <url>https://central.sonatype.com/api/v1/publish</url> <!-- 주의: central portal 전용 URL -->
+    </repository>
+  </distributionManagement>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
+	  <!-- Java 17 + -parameters 설정 -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.11.0</version>
         <configuration>
           <release>17</release>
           <compilerArgs>
@@ -17,8 +49,78 @@
 		  </compilerArgs>
         </configuration>
       </plugin>
+      <!-- sources -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.11.2</version>
+        <configuration>
+          <source>17</source>
+          <doclint>none</doclint>
+          <encoding>UTF-8</encoding> <!-- 여기 중요! -->
+          <docencoding>UTF-8</docencoding> <!-- 문서의 인코딩 -->
+          <charset>UTF-8</charset> <!-- HTML 출력 인코딩 -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- GPG 서명 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.2.2</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <keyname>${env.GPG_KEYNAME}</keyname>
+          <passphrase>${env.GPG_PASSPHASE}</passphrase>
+          <gpgArguments>
+            <argument>--pinentry-mode</argument>
+            <argument>loopback</argument>
+          </gpgArguments>
+        </configuration>
+      </plugin>
+      <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.7.0</version>
+          <extensions>true</extensions>
+          <configuration>
+             <publishingServerId>central</publishingServerId>
+             <autoPublish>true</autoPublish>
+          </configuration>
+      </plugin>
     </plugins>
   </build>
+  
+  
   <modules>
   	<module>common</module>
   	<module>parser</module>
