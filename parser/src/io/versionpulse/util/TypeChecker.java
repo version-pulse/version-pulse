@@ -11,6 +11,12 @@ public class TypeChecker {
 		else if (clazz.getPackage().getName().startsWith("java.lang")) {
 			return WRAPPER;
 		}
+		else if (clazz.getName().startsWith("java.util.Map")) {
+			return MAP;
+		}
+		else if (clazz.getName().startsWith("java.util")) {
+			return LIST;
+		}
 		else {
 			return USER_DEFINED;
 		}

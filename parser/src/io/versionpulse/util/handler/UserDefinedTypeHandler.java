@@ -18,11 +18,17 @@ public class UserDefinedTypeHandler implements TypeHandler {
             field.setAccessible(true);
             String name = field.getName();
             Class<?> fieldType = field.getType();
-
             TypeHandler handler = TypeHandlerFactory.getHandler(fieldType);
-            node.set(name, handler.handle(fieldType));
+            if (handler instanceof ListTypeHandler listTypeHandler) {
+                node.set(name, listTypeHandler.handle(field.getGenericType()));
+            }
+            else if (handler instanceof MapTypeHandler mapTypeHandler) {
+                node.set(name, mapTypeHandler.handle(field.getGenericType()));
+            }
+            else {
+                node.set(name, handler.handle(fieldType));
+            }
         }
-
         return node;
     }
 }
