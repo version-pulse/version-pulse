@@ -28,9 +28,25 @@ public class WebClientManager {
                 .doOnError(error -> logger.warning("Error occur during calling notion api: " + error.getMessage()));
     }
 
+    // 비동기 요청 처리
+    public <T> Mono<T> asyncRequest(String uri, HttpHeaders headers, Class<T> responseType) {
+        return webClient.get()
+                .uri(uri)
+                .headers(httpHeaders -> httpHeaders.addAll(headers))
+                .retrieve()
+                .bodyToMono(responseType)
+                .doOnTerminate(() -> logger.info("called an API..."))
+                .doOnError(error -> logger.warning("Error occur during calling notion api: " + error.getMessage()));
+    }
+
     // 동기 요청 처리
     public <T> T syncRequest(String uri, HttpHeaders headers, Object requestBody, Class<T> responseType) {
         return asyncRequest(uri, headers, requestBody, responseType)
+                .block();
+    }
+
+    public <T> T syncRequest(String uri, HttpHeaders headers, Class<T> responseType) {
+        return asyncRequest(uri, headers, responseType)
                 .block();
     }
 }
