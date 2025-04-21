@@ -1,11 +1,21 @@
-.idea
+# JetBrains IDE 관련 설정 파일
+.idea/
+
+# Eclipse 관련 설정 파일
 .classpath
 .project
-bin/
-taret/
-.jar
 .settings/
-/target/
+
+# 빌드 결과물 (컴파일된 클래스 파일들)
+bin/
+target/
+
+# JAR 파일
+*.jar
+
+# 설정 파일 (예: 로그 설정, 환경 설정 등)
 *.properties
+
+# 예제용 샘플 코드 (버전 관리 제외)
 parser/src/io/versionpulse/sample/
 app/src/io/versionpulse/sample/

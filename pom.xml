@@ -2,12 +2,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.version-pulse</groupId>
   <artifactId>version-pulse</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <packaging>pom</packaging>
+
+  <properties>
+    <project.version>0.1.1</project.version>
+  </properties>
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>API 명세서 자동화 도구</description>
-  <url>https://github.com/version-pulse/version-pulse</url>
+  <url>https://github.com/version-pulse/version-pulse/tree/main</url>
 
   <licenses>
     <license>
@@ -24,13 +28,13 @@
   </developers>
 
   <scm>
-    <url>https://github.com/version-pulse/version-pulse/tree/master</url>
+    <url>https://github.com/version-pulse/version-pulse/tree/main</url>
   </scm>
 
   <distributionManagement>
     <repository>
       <id>central</id>
-      <url>https://central.sonatype.com/api/v1/publish</url> <!-- 주의: central portal 전용 URL -->
+      <url>https://central.sonatype.com/api/v1/publish</url> <!-- central portal 전용 URL -->
     </repository>
   </distributionManagement>
 
@@ -71,7 +75,7 @@
         <configuration>
           <source>17</source>
           <doclint>none</doclint>
-          <encoding>UTF-8</encoding> <!-- 여기 중요! -->
+          <encoding>UTF-8</encoding> <!-- 인코딩! -->
           <docencoding>UTF-8</docencoding> <!-- 문서의 인코딩 -->
           <charset>UTF-8</charset> <!-- HTML 출력 인코딩 -->
         </configuration>

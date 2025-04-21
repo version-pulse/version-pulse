@@ -7,7 +7,7 @@
   <parent>
     <groupId>io.github.version-pulse</groupId>
     <artifactId>version-pulse</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </parent>
 
   <artifactId>app</artifactId>
@@ -17,17 +17,17 @@
     <dependency>
       <groupId>io.github.version-pulse</groupId>
       <artifactId>common</artifactId>
-      <version>0.1.0</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.github.version-pulse</groupId>
       <artifactId>parser</artifactId>
-      <version>0.1.0</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.github.version-pulse</groupId>
       <artifactId>documentation</artifactId>
-      <version>0.1.0</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
