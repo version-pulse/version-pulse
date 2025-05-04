@@ -9,13 +9,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 public class MapTypeHandler implements TypeHandler {
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
-    public JsonNode handle(Class<?> clazz) {
-        throw new UnsupportedOperationException("Class<?> not supported. Use handle(Type type) instead.");
-    }
     public JsonNode handle(Type type) throws Exception {
         ObjectNode node = objectMapper.createObjectNode();
 
@@ -28,17 +23,9 @@ public class MapTypeHandler implements TypeHandler {
                 if (actualTypes.length == 2) {
                     String keyType = ((Class<?>) actualTypes[0]).getSimpleName();
                     JsonNode valueType;
-                    TypeHandler handler = TypeHandlerFactory.getHandler(((Class<?>) actualTypes[1]));
+                    TypeHandler handler = TypeHandlerFactory.getHandler(actualTypes[1]);
 
-                    if (handler instanceof ListTypeHandler listTypeHandler) {
-                        valueType = listTypeHandler.handle(actualTypes[1]);
-                    }
-                    else if (handler instanceof MapTypeHandler mapTypeHandler) {
-                        valueType = mapTypeHandler.handle(actualTypes[1]);
-                    }
-                    else {
-                        valueType = handler.handle(((Class<?>) actualTypes[1]));
-                    }
+                    valueType = handler.handle(actualTypes[1]);
                     node.set(keyType, valueType);
                 }
             }

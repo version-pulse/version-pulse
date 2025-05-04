@@ -4,17 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.versionpulse.util.handler.TypeHandler;
 import io.versionpulse.util.handler.TypeHandlerFactory;
 
+import java.lang.reflect.Type;
+
 public class Converter {
-	public static String toJson(Class<?> clazz) throws Exception {
-		TypeHandler handler = TypeHandlerFactory.getHandler(clazz);
-		return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(handler.handle(clazz));
+	public static String toJson(Type type) throws Exception {
+		TypeHandler handler = TypeHandlerFactory.getHandler(type);
+		return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(handler.handle(type));
 	}
 
-	public static String toJson(Class<?> clazz, String fieldName) throws Exception {
-		if (TypeChecker.check(clazz) == ClassType.PRIMITIVE ||
-				TypeChecker.check(clazz) == ClassType.WRAPPER) {
-			return String.format("{\"%s\": \"%s\"}", fieldName, clazz.getSimpleName());
+	public static String toJson(Type type, String fieldName) throws Exception {
+		if (TypeChecker.check(type) == ClassType.PRIMITIVE ||
+				TypeChecker.check(type) == ClassType.WRAPPER) {
+			String typeName = type.getTypeName();
+			return String.format("{\"%s\": \"%s\"}", fieldName, typeName.substring(typeName.lastIndexOf('.') + 1));
 		}
-		return toJson(clazz);
+		return toJson(type);
 	}
 }

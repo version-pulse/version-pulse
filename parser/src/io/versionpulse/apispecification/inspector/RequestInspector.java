@@ -53,11 +53,9 @@ public class RequestInspector {
 	
 	
 	private static RequestBody getRequestBody(Parameter parameter) {
-		Type type = parameter.getType();
-		Class<?> clazz = (type instanceof Class<?>) ? (Class<?>) type : null;
-		
+		Type type = parameter.getParameterizedType();
 		try {
-			return new RequestBody(Converter.toJson(clazz, parameter.getName()));
+			return new RequestBody(Converter.toJson(type, parameter.getName()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
