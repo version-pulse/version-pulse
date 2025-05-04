@@ -1,9 +1,8 @@
 name: Release to Maven Central
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [created]
 
 permissions:
   contents: write
@@ -25,9 +24,15 @@ jobs:
           server-id: 'central' # must match the serverId configured for the nexus-staging-maven-plugin
           server-username: MAVEN_USERNAME # Env var that holds your MAVEN user name
           server-password: MAVEN_PASSWORD # Env var that holds your MAVEN user pw
-          gpg-private-key: ${{ secrets.GPG_KEYNAME }} # Substituted with the value stored in the referenced secret
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
           gpg-passphrase: GPG_PASSPHRASE # Env var that holds the key's passphrase
           cache: 'maven'
+      - name: Set version
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          VERSION=${TAG#v}
+          mvn versions:set -DnewVersion=$VERSION
+          mvn versions:commit
       - name: Build & Deploy
         run: |
           # -U force updates just to make sure we are using latest dependencies
