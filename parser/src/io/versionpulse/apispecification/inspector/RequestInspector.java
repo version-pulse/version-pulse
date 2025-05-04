@@ -27,11 +27,11 @@ public class RequestInspector {
 		for (Parameter parameter : parameters) {
 			Annotation[] annotations = parameter.getAnnotations();
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof RequestParam) {
-					queryStringList.add(getQueryString(parameter, (RequestParam) annotation));
+				if (annotation instanceof RequestParam requestParam) {
+					queryStringList.add(getQueryString(parameter, requestParam));
 				}
-				else if (annotation instanceof PathVariable) {
-					pathParameterList.add(getPathParameter(parameter, (PathVariable) annotation));
+				else if (annotation instanceof PathVariable pathVariable) {
+					pathParameterList.add(getPathParameter(parameter, pathVariable));
 				}
 				else if (annotation instanceof org.springframework.web.bind.annotation.RequestBody) {
 					requestbody = getRequestBody(parameter);
@@ -54,11 +54,6 @@ public class RequestInspector {
 	
 	private static RequestBody getRequestBody(Parameter parameter) {
 		Type type = parameter.getParameterizedType();
-		try {
-			return new RequestBody(Converter.toJson(type, parameter.getName()));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return new RequestBody(Converter.toJson(type, parameter.getName()));
 	}
 }

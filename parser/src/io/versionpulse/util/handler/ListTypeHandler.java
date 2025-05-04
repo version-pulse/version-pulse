@@ -11,7 +11,7 @@ public class ListTypeHandler implements TypeHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JsonNode handle(Type type) throws Exception {
+    public JsonNode handle(Type type) {
         ArrayNode array = objectMapper.createArrayNode();
         if (type instanceof ParameterizedType pt) {
             Type[] actualTypes = pt.getActualTypeArguments();

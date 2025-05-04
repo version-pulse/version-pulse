@@ -13,7 +13,7 @@ public class UserDefinedTypeHandler implements TypeHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public JsonNode handle(Type type) throws Exception {
+    public JsonNode handle(Type type) {
         Class<?> clazz;
 
         // Type이 Class<?> 인스턴스일 경우

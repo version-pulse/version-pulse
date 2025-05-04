@@ -3,8 +3,6 @@ package io.versionpulse.util;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import static io.versionpulse.util.ClassType.*;
-
 public class TypeChecker {
 
 	public static ClassType check(Type type) {
@@ -28,5 +26,4 @@ public class TypeChecker {
 		}
 		return ClassType.USER_DEFINED;
 	}
-
 }

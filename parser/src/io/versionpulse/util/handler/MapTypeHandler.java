@@ -11,7 +11,7 @@ import java.util.Map;
 public class MapTypeHandler implements TypeHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JsonNode handle(Type type) throws Exception {
+    public JsonNode handle(Type type) {
         ObjectNode node = objectMapper.createObjectNode();
 
         if (type instanceof ParameterizedType pt) {
