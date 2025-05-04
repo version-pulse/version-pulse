@@ -12,55 +12,29 @@ jobs:
   deploy:
     name: Deploy to Maven Central
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3 # Does also set up Maven and GPG
         with:
-          fetch-depth: 0
-          tags: true
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
+          distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
+          java-package: 'jdk'
           java-version: '17'
+          check-latest: true
+          server-id: 'central' # must match the serverId configured for the nexus-staging-maven-plugin
+          server-username: MAVEN_USERNAME # Env var that holds your MAVEN user name
+          server-password: MAVEN_PASSWORD # Env var that holds your MAVEN user pw
+          gpg-private-key: ${{ secrets.GPG_KEYNAME }} # Substituted with the value stored in the referenced secret
+          gpg-passphrase: GPG_PASSPHRASE # Env var that holds the key's passphrase
           cache: 'maven'
-
-      - name: Set up Maven settings.xml
+      - name: Build & Deploy
         run: |
-          mkdir -p ~/.m2
-          echo "<settings>
-                  <servers>
-                    <server>
-                      <id>central</id>
-                      <username>${{ secrets.MAVEN_USERNAME }}</username>
-                      <password>${{ secrets.MAVEN_PASSWORD }}</password>
-                    </server>
-                  </servers>
-                </settings>" > ~/.m2/settings.xml
-
-      - name: Set Version Number (Git Tag Based Versioning)
-        run: |
-          TAG_NAME=$(git describe --tags --abbrev=0)
-          VERSION="${TAG_NAME#v}"
-          mvn versions:set -DnewVersion=$VERSION
-          mvn versions:commit
-          echo "새로운 버전 : ${VERSION}"
-
-      - name: Import GPG key
-        run: |
-          echo "$GPG_PRIVATE_KEY" | base64 --decode | gpg --batch --import
+          # -U force updates just to make sure we are using latest dependencies
+          # -B Batch mode (do not ask for user input), just in case
+          # -P activate profile
+          mvn -U -B clean deploy
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-
-      - name: Configure GPG trust
-        run: |
-          echo -e "5\ny\n" | gpg --command-fd 0 --status-fd 1 --batch --edit-key "${{ secrets.GPG_KEYNAME }}" trust quit
-
-
-      - name: Deploy with Maven Central
-        run: mvn --batch-mode deploy -DskipTests
-        env:
-          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
