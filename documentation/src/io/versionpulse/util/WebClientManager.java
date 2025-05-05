@@ -1,15 +1,15 @@
 package io.versionpulse.util;
 
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class WebClientManager {
-	private static final Logger logger = Logger.getLogger(WebClientManager.class.getName());
     private final WebClient webClient;
 
     public WebClientManager(String baseUrl) {
@@ -24,8 +24,8 @@ public class WebClientManager {
                 .body(BodyInserters.fromValue(requestBody))
                 .retrieve()
                 .bodyToMono(responseType)
-                .doOnTerminate(() -> logger.info("called an API..."))
-                .doOnError(error -> logger.warning("Error occur during calling notion api: " + error.getMessage()));
+                .doOnTerminate(() -> log.info("called an API..."))
+                .doOnError(error -> log.warn("Error occur during calling notion api: " + error.getMessage()));
     }
 
     // 비동기 요청 처리
@@ -35,8 +35,8 @@ public class WebClientManager {
                 .headers(httpHeaders -> httpHeaders.addAll(headers))
                 .retrieve()
                 .bodyToMono(responseType)
-                .doOnTerminate(() -> logger.info("called an API..."))
-                .doOnError(error -> logger.warning("Error occur during calling notion api: " + error.getMessage()));
+                .doOnTerminate(() -> log.info("called an API..."))
+                .doOnError(error -> log.warn("Error occur during calling notion api: " + error.getMessage()));
     }
 
     // 동기 요청 처리

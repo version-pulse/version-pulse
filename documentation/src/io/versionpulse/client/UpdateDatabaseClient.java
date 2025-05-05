@@ -2,8 +2,8 @@ package io.versionpulse.client;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 
 import io.versionpulse.dto.UpdateDTO;
@@ -17,10 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Builder
 @AllArgsConstructor
 public class UpdateDatabaseClient {
-	private static final Logger logger = Logger.getLogger(UpdateDatabaseClient.class.getName());
 	private String notionKey;
 	private String databaseId;
 	private final String url = "https://api.notion.com/v1/pages";
@@ -55,10 +55,10 @@ public class UpdateDatabaseClient {
 		// 비동기 작업이 완료될 때까지 메인 스레드 대기
 		CountDownLatch latch = new CountDownLatch(1);
 		response.subscribe(result -> {
-			logger.info("Update a API specitication"+" : "+result);
+			log.info("Update a API specitication"+" : "+result);
 			latch.countDown(); // 비동기 작업이 완료되면 카운트다운
 		}, error -> {
-			logger.warning("오류 발생: " + error.getMessage());
+			log.warn("오류 발생: " + error.getMessage());
 			latch.countDown(); // 오류 발생시에도 카운트다운
 		});
 
