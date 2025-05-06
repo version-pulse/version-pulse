@@ -10,39 +10,45 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 public class UserDefinedTypeHandler implements TypeHandler {
-
     private static final ObjectMapper objectMapper = ObjectMapperProvider.get();
+    private static final UserDefinedTypeHandler INSTANCE = new UserDefinedTypeHandler();
+
+    private UserDefinedTypeHandler() {}
+
+    public static UserDefinedTypeHandler getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public JsonNode handle(Type type) {
-        Class<?> clazz;
-
-        // Type이 Class<?> 인스턴스일 경우
-        if (type instanceof Class<?>) {
-            clazz = (Class<?>) type;
-        }
-        // Type이 ParameterizedType인 경우
-        else if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            clazz = (Class<?>) parameterizedType.getRawType();
-        } else {
-            throw new IllegalArgumentException("Unsupported Type: " + type.getTypeName());
-        }
-
         ObjectNode node = objectMapper.createObjectNode();
 
+        Class<?> clazz = getClassFromType(type);
+
         for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);  // 필드 접근을 허용
+            field.setAccessible(true); // 필드 접근을 허용
             String name = field.getName();
-            Class<?> fieldType = field.getType();
-            Type fieldGenericType = field.getGenericType();  // 제네릭 타입을 가져옴
+            Type fieldType = field.getGenericType();
 
-            // TypeHandler를 이용하여 필드 타입에 맞는 핸들러를 가져옴
+            // 필드 타입에 맞는 핸들러를 가져와 실행
             TypeHandler handler = TypeHandlerFactory.getHandler(fieldType);
-
-            node.set(name, handler.handle(fieldGenericType));
+            JsonNode fieldNode = handler.handle(fieldType);
+            node.set(name, fieldNode);
         }
-
         return node;
+    }
+
+    private Class<?> getClassFromType(Type type) {
+        // 일반 클래스 타입
+        if (type instanceof Class<?>) {
+            return (Class<?>) type;
+        }
+        // 제네릭 타입
+        else if (type instanceof ParameterizedType parameterizedType) {
+            return (Class<?>) parameterizedType.getRawType();
+        }
+        else {
+            throw new IllegalArgumentException("Unsupported Type: " + type.getTypeName());
+        }
     }
 }

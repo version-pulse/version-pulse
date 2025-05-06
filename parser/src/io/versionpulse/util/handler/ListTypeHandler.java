@@ -9,18 +9,26 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 public class ListTypeHandler implements TypeHandler {
-
     private static final ObjectMapper objectMapper = ObjectMapperProvider.get();
+    private static final ListTypeHandler INSTANCE = new ListTypeHandler();
+
+    private ListTypeHandler() {}
+
+    public static ListTypeHandler getInstance() {
+        return INSTANCE;
+    }
 
     public JsonNode handle(Type type) {
-        ArrayNode array = objectMapper.createArrayNode();
-        if (type instanceof ParameterizedType pt) {
-            Type[] actualTypes = pt.getActualTypeArguments();
+        ArrayNode node = objectMapper.createArrayNode();
+
+        if (type instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypes = parameterizedType.getActualTypeArguments();
             if (actualTypes.length == 1) {
-                TypeHandler handler = TypeHandlerFactory.getHandler(actualTypes[0]);
-                array.add(handler.handle(actualTypes[0]));
+                Type elementType = actualTypes[0];
+                TypeHandler handler = TypeHandlerFactory.getHandler(elementType);
+                node.add(handler.handle(elementType));
             }
         }
-        return array;
+        return node;
     }
 }
