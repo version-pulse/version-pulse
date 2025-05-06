@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import io.versionpulse.apispecification.ApiSpecFetcher;
+import io.versionpulse.apispec.ApiSpecFetcher;
 import io.versionpulse.model.dto.ApiDto;
 import io.versionpulse.model.dto.ApiGroupDto;
 import io.versionpulse.model.dto.ApiSchemaDto;

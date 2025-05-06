@@ -1,4 +1,4 @@
-package io.versionpulse.apispecification.model;
+package io.versionpulse.apispec.model;
 
 import java.util.List;
 

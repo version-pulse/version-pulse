@@ -1,4 +1,4 @@
-package io.versionpulse.apispecification.inspector;
+package io.versionpulse.apispec.inspector;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
-import io.versionpulse.apispecification.model.HttpEndPointModel;
+import io.versionpulse.apispec.model.HttpEndPointModel;
 
 public class HttpEndPointInspector {
 

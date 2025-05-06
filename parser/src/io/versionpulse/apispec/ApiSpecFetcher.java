@@ -1,13 +1,13 @@
-package io.versionpulse.apispecification;
+package io.versionpulse.apispec;
 
 import java.lang.reflect.Method;
 
-import io.versionpulse.apispecification.inspector.HttpEndPointInspector;
-import io.versionpulse.apispecification.inspector.RequestInspector;
-import io.versionpulse.apispecification.inspector.ResponseInspector;
-import io.versionpulse.apispecification.model.HttpEndPointModel;
-import io.versionpulse.apispecification.model.RequestModel;
-import io.versionpulse.apispecification.model.ResponseModel;
+import io.versionpulse.apispec.inspector.HttpEndPointInspector;
+import io.versionpulse.apispec.inspector.RequestInspector;
+import io.versionpulse.apispec.inspector.ResponseInspector;
+import io.versionpulse.apispec.model.HttpEndPointModel;
+import io.versionpulse.apispec.model.RequestModel;
+import io.versionpulse.apispec.model.ResponseModel;
 import io.versionpulse.model.dto.ApiSchemaDto;
 import io.versionpulse.util.Formatter;
 

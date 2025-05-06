@@ -1,4 +1,4 @@
-package io.versionpulse.apispecification.inspector;
+package io.versionpulse.apispec.inspector;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import io.versionpulse.apispecification.model.RequestModel;
+import io.versionpulse.apispec.model.RequestModel;
 import io.versionpulse.model.PathParameter;
 import io.versionpulse.model.QueryString;
 import io.versionpulse.model.RequestBody;

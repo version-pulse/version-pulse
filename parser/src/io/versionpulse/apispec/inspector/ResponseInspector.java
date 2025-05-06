@@ -1,10 +1,10 @@
-package io.versionpulse.apispecification.inspector;
+package io.versionpulse.apispec.inspector;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import io.versionpulse.apispecification.model.ResponseModel;
+import io.versionpulse.apispec.model.ResponseModel;
 import io.versionpulse.model.ResponseBody;
 import io.versionpulse.util.Converter;
 
