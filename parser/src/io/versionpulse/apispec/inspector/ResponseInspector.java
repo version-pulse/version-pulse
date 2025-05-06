@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 
 import io.versionpulse.apispec.model.ResponseModel;
 import io.versionpulse.model.ResponseBody;
-import io.versionpulse.util.Converter;
+import io.versionpulse.util.JsonConverter;
 
 public class ResponseInspector {
 
@@ -16,9 +16,9 @@ public class ResponseInspector {
 			String json;
 			if (genericReturnType instanceof ParameterizedType parameterizedType) {
 				Type typeArg = parameterizedType.getActualTypeArguments()[0];
-				json = Converter.toJson(typeArg);
+				json = JsonConverter.toJson(typeArg);
 			} else {
-				json = Converter.toJson(genericReturnType); // fallback
+				json = JsonConverter.toJson(genericReturnType); // fallback
 			}
 			return new ResponseModel(new ResponseBody(json));
 		} catch (Exception e) {

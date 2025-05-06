@@ -14,7 +14,7 @@ import io.versionpulse.apispec.model.RequestModel;
 import io.versionpulse.model.PathParameter;
 import io.versionpulse.model.QueryString;
 import io.versionpulse.model.RequestBody;
-import io.versionpulse.util.Converter;
+import io.versionpulse.util.JsonConverter;
 
 public class RequestInspector {
 	
@@ -54,6 +54,6 @@ public class RequestInspector {
 	
 	private static RequestBody getRequestBody(Parameter parameter) {
 		Type type = parameter.getParameterizedType();
-		return new RequestBody(Converter.toJson(type, parameter.getName()));
+		return new RequestBody(JsonConverter.toJson(type));
 	}
 }
