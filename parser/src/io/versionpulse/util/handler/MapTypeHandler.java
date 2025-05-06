@@ -3,13 +3,14 @@ package io.versionpulse.util.handler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.versionpulse.common.ObjectMapperProvider;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 
 public class MapTypeHandler implements TypeHandler {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = ObjectMapperProvider.get();
 
     public JsonNode handle(Type type) {
         ObjectNode node = objectMapper.createObjectNode();
