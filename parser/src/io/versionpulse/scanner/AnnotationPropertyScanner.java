@@ -8,12 +8,11 @@ import io.versionpulse.annotation.Api;
 import io.versionpulse.annotation.ApiGroup;
 
 
-public class AnnotationMetaDataScanner {
+public class AnnotationPropertyScanner {
 	
 	public static String getApiGroupName(Class<?> clazz) {
 		ApiGroup apiGroup = clazz.getAnnotation(ApiGroup.class);
-        String nameValue = apiGroup.name();
-		return nameValue;
+        return apiGroup.name();
 	}
 	
 	public static String getApiCommonPath(Class<?> clazz) {
@@ -21,14 +20,13 @@ public class AnnotationMetaDataScanner {
 		return restController.value();
 	}
 	
-	public static String getDetail(Method method) {
+	public static String getApiDetail(Method method) {
 		Api api = method.getAnnotation(Api.class);
 		return api.detail();
 	}
 	
 	public static String getApiName(Method method) {
 		Api api = method.getAnnotation(Api.class);
-        String nameValue = api.name();
-		return nameValue;
+        return api.name();
 	}
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import io.versionpulse.annotation.Api;
 
 
-public class ApiScanner {
+public class ApiMethodScanner {
 	
 	public List<Method> execute(Class<?> clazz) {
 		List<Method> result = new ArrayList<>();
