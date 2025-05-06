@@ -7,19 +7,19 @@ import java.util.Map;
 
 public class TypeChecker {
 
-	public static ClassType check(Type type) {
+	public static TypeCategory check(Type type) {
 		// 일반 클래스 타입
 		if (type instanceof Class<?> clazz) {
 			if (clazz.getPackage() == null || clazz.isPrimitive()) {
-				return ClassType.PRIMITIVE;
+				return TypeCategory.PRIMITIVE;
 			} else if (clazz.getPackage().getName().startsWith("java.lang")) {
-				return ClassType.WRAPPER;
+				return TypeCategory.WRAPPER;
 			} else if (Map.class.isAssignableFrom(clazz)) {
-				return ClassType.MAP;
+				return TypeCategory.MAP;
 			} else if (Collection.class.isAssignableFrom(clazz)) {
-				return ClassType.LIST;
+				return TypeCategory.LIST;
 			} else {
-				return ClassType.USER_DEFINED;
+				return TypeCategory.USER_DEFINED;
 			}
 		}
 		// 제네릭 타입
@@ -29,6 +29,6 @@ public class TypeChecker {
 				return check(rawClazz);
 			}
 		}
-		return ClassType.USER_DEFINED;
+		return TypeCategory.USER_DEFINED;
 	}
 }
