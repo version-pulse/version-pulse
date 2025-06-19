@@ -69,7 +69,7 @@ jobs:
               }
             });
 
-            let releaseNote = `🚀 version-pulse ${{ inputs.tag_name }} (${new Date().toISOString().split('T')[0]})\n`;
+            let releaseNote = `## 🚀 version-pulse ${{ inputs.tag_name }} (${new Date().toISOString().split('T')[0]})\n`;
             releaseNote += `이번 릴리즈에서는 주요 기능 추가 및 개선 사항이 포함되어 있습니다.\n\n`;
 
             if (categories.fix.length > 0) {
