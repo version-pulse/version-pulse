@@ -107,7 +107,7 @@ jobs:
 
   release_note_job:
     needs: calculate_tag
-    uses: version-pulse/version-pulse/workflows/release-template.yml@main
+    uses: version-pulse/version-pulse/.github/workflows/release-template.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
       tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
