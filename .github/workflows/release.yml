@@ -9,6 +9,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 permissions:
   contents: write  # 태그 생성과 릴리즈 권한
 
