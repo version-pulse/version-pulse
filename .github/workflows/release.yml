@@ -1,0 +1,76 @@
+name: Auto Tag & Release
+
+on:
+  push:
+    branches:
+      - main  # main 브랜치에 push 될 때 자동 실행
+  workflow_dispatch:  # 수동 실행 지원
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          git fetch --tags
+          DEBUG=$(git describe --tags)
+          echo "✅ Latest tag: $DEBUG"
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version (Patch bump)
+        id: calculate_version
+        run: |
+          TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
+          VERSION=${TAG#v}
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          PATCH=$((PATCH + 1))
+          NEXT_TAG="v$MAJOR.$MINOR.$PATCH"
+
+          echo "✅ Current version: $VERSION"
+          echo "✅ Next tag: $NEXT_TAG"
+
+          echo "next_tag=$NEXT_TAG" >> $GITHUB_OUTPUT
+
+      - name: Get commit messages since last tag
+        id: commit_messages
+        run: |
+          TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
+          echo "✅ Getting commits since tag: $TAG"
+
+          if [ "$TAG" = "v0.0.0" ]; then
+            COMMITS=$(git log --pretty=format:"- %s")
+          else
+            COMMITS=$(git log ${TAG}..HEAD --pretty=format:"- %s")
+          fi
+
+          echo "✅ Collected commit messages:"
+          echo "$COMMITS"
+
+          echo "release_notes<<EOF" >> $GITHUB_ENV
+          echo "$COMMITS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create Git Tag
+        run: |
+          echo "✅ Creating tag: ${{ steps.calculate_version.outputs.next_tag }}"
+          git tag -a ${{ steps.calculate_version.outputs.next_tag }} -m "Release ${{ steps.calculate_version.outputs.next_tag }}"
+          git push origin ${{ steps.calculate_version.outputs.next_tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.calculate_version.outputs.next_tag }}
+          name: Release ${{ steps.calculate_version.outputs.next_tag }}
+          body: ${{ env.release_notes }}
