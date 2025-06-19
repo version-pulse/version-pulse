@@ -2,6 +2,9 @@ package io.versionpulse.client;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -27,9 +30,27 @@ public class UpdateDatabaseClient {
 	private List<ApiGroupDto> records;
 
 	public void execute() {
-		for (ApiGroupDto group : records) {
-			for (ApiDto api : group.apis()) {
-				sendSingleRequest(group.groupTag(), api);
+		// CPU 코어 수에 맞춰 스레드 풀 생성
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+		try {
+			for (ApiGroupDto group : records) {
+				for (ApiDto api : group.apis()) {
+					String groupTag = group.groupTag();
+					executor.submit(() -> sendSingleRequest(groupTag, api));
+				}
+			}
+		} finally {
+			// 더 이상 작업을 제출하지 않음
+			executor.shutdown();
+			try {
+				// 모든 작업이 끝날 때까지 대기 (최대 60초)
+				if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+					executor.shutdownNow(); // 시간 초과 시 강제 종료
+				}
+			} catch (InterruptedException e) {
+				executor.shutdownNow();
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
