@@ -116,3 +116,18 @@ jobs:
       - name: Echo release note
         run: echo "${{ steps.release_note_job.outputs.release_note }}"
 
+  release_note_job:
+    needs: calculate_tag
+    uses: version-pulse/version-pulse/workflows/release-template.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
+
+  echo_release_note:
+    needs: generate_release_note
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo generated release note
+        run: |
+          echo "==== GENERATED RELEASE NOTE ===="
+          echo "${{ needs.generate_release_note.outputs.release_note }}"
