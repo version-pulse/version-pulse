@@ -103,4 +103,4 @@ jobs:
             }
 
             console.log("✅ Generated Release Note:\n" + releaseNote);
-            return JSON.stringify(releaseNote);
+            return releaseNote;
