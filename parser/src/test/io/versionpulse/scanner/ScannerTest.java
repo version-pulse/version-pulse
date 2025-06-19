@@ -1,4 +1,4 @@
-package test;
+package test.io.versionpulse.scanner;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

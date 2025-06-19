@@ -12,18 +12,19 @@ public class ResponseInspector {
 
 	public static ResponseModel execute(Method method) {
 		Type genericReturnType = method.getGenericReturnType();
-		try {
-			String json;
-			if (genericReturnType instanceof ParameterizedType parameterizedType) {
-				Type typeArg = parameterizedType.getActualTypeArguments()[0];
-				json = JsonConverter.toJson(typeArg);
-			} else {
-				json = JsonConverter.toJson(genericReturnType); // fallback
+		String json = "";
+
+		if (genericReturnType instanceof ParameterizedType parameterizedType) {
+			Type rawType = parameterizedType.getRawType();
+			if (rawType instanceof Class<?> rawClass && rawClass.getSimpleName().equals("ResponseEntity")) {
+				Type[] typeArgs = parameterizedType.getActualTypeArguments();
+				Type actualType = typeArgs[0];
+				json = JsonConverter.toJson(actualType);
+				return new ResponseModel(new ResponseBody(json));
 			}
-			return new ResponseModel(new ResponseBody(json));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		} else {
+			json = JsonConverter.toJson(genericReturnType);
 		}
+		return new ResponseModel(new ResponseBody(json));
 	}
 }
