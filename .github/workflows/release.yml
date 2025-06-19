@@ -30,7 +30,6 @@ jobs:
       - name: Get latest tag
         id: get_latest_tag
         run: |
-          # 최신 태그가 없으면 v0.0.0 시작
           TAG=$(git describe --tags --abbrev=0)
           echo "Latest tag: $TAG"
           echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
@@ -49,16 +48,16 @@ jobs:
           MINOR=${VERSION_PARTS[1]}
           PATCH=${VERSION_PARTS[2]}
 
-          if echo "$PR_TITLE" | grep -iq '^major:'; then
+          if echo "$PR_TITLE" | grep -iq '^Major:'; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
             PATCH=0
             echo "🔴 Major version bump"
-          elif echo "$PR_TITLE" | grep -iq '^minor:'; then
+          elif echo "$PR_TITLE" | grep -iq '^Minor:'; then
             MINOR=$((MINOR + 1))
             PATCH=0
             echo "🟡 Minor version bump"
-          elif echo "$PR_TITLE" | grep -iq '^patch:'; then
+          elif echo "$PR_TITLE" | grep -iq '^Patch:'; then
             PATCH=$((PATCH + 1))
             echo "🟢 Patch version bump"
           else
@@ -73,7 +72,7 @@ jobs:
       - name: Create Git tag
         run: |
           git tag ${{ steps.calculate_tag.outputs.new_tag }}
-          git push origin ${{ steps.calculate_tag.outputs.new_tag }}
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
