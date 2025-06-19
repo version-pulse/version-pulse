@@ -1,0 +1,106 @@
+name: Create Tag and Release
+
+on:
+  pull_request:
+    types:
+      - closed   # PR이 닫힐 때만 실행
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write  # 태그 생성과 릴리즈 권한
+
+jobs:
+  create_tag_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: PR 머지 여부 확인
+        if: ${{ github.event.pull_request.merged == true }}
+        run: echo "PR이 머지되어 작업을 진행합니다."
+
+      - name: 머지되지 않은 닫힘 시 종료
+        if: ${{ github.event.pull_request.merged != true }}
+        run: |
+          echo "PR은 닫혔지만 머지되지 않았으므로 태그와 릴리즈 생성을 건너뜁니다."
+          exit 0
+
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 히스토리와 태그 가져오기
+
+      - name: Git 설정
+        run: |
+          echo "Git 사용자 이름과 이메일 설정 중..."
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: 태그 정보 가져오기
+        run: |
+          echo "원격 저장소에서 태그 정보를 가져오는 중..."
+          git fetch --tags
+
+      - name: 최신 태그 확인
+        id: get_latest_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo "최신 태그: $TAG"
+          echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: PR 제목으로 다음 버전 계산
+        id: calculate_tag
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR 제목: $PR_TITLE"
+
+          VERSION=${{ steps.get_latest_tag.outputs.latest_tag }}
+          VERSION=${VERSION#v}  # 태그 앞 'v' 제거
+          IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
+
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+
+          echo "현재 버전: Major=$MAJOR, Minor=$MINOR, Patch=$PATCH"
+
+          if echo "$PR_TITLE" | grep -iq '^Major:'; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            echo "🔴 메이저 버전 증가"
+          elif echo "$PR_TITLE" | grep -iq '^Minor:'; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            echo "🟡 마이너 버전 증가"
+          elif echo "$PR_TITLE" | grep -iq '^Patch:'; then
+            PATCH=$((PATCH + 1))
+            echo "🟢 패치 버전 증가"
+          else
+            echo "⚠️ PR 제목에 버전 증가 키워드(Major:, Minor:, Patch:)가 없습니다."
+            exit 1
+          fi
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "다음 생성할 태그: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: 머지 커밋에 태그 생성 및 푸시
+        run: |
+          MERGE_COMMIT_SHA="${{ github.event.pull_request.merge_commit_sha }}"
+          echo "머지 커밋 SHA: $MERGE_COMMIT_SHA 에 태그 ${{ steps.calculate_tag.outputs.new_tag }} 생성 중..."
+
+          git tag ${{ steps.calculate_tag.outputs.new_tag }} $MERGE_COMMIT_SHA
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
+
+      - name: GitHub 릴리즈 생성
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
+          name: Release ${{ steps.calculate_tag.outputs.new_tag }}
+          body: |
+            자동 생성된 릴리즈입니다.
+            PR 제목: ${{ github.event.pull_request.title }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
