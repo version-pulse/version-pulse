@@ -1,76 +1,87 @@
-name: Auto Tag & Release
+name: Create Tag and Release
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
-      - main  # main 브랜치에 push 될 때 자동 실행
-  workflow_dispatch:  # 수동 실행 지원
+      - main
+  workflow_dispatch:
 
 jobs:
-  release:
+  create_tag_and_release:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 히스토리 가져오기
 
-      - name: Set up Git user
+      - name: Set up Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Fetch tags
+        run: git fetch --tags
 
       - name: Get latest tag
         id: get_latest_tag
         run: |
-          git fetch --tags
-          DEBUG=$(git describe --tags)
-          echo "✅ Latest tag: $DEBUG"
-          LATEST_TAG=$(git describe --tags --abbrev=0)
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          # 최신 태그가 없으면 v0.0.0 시작
+          TAG=$(git describe --tags --abbrev=0)
+          echo "Latest tag: $TAG"
+          echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Calculate next version (Patch bump)
-        id: calculate_version
+      - name: Calculate next version from PR title
+        id: calculate_tag
         run: |
-          TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
-          VERSION=${TAG#v}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
 
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          PATCH=$((PATCH + 1))
-          NEXT_TAG="v$MAJOR.$MINOR.$PATCH"
+          VERSION=${{ steps.get_latest_tag.outputs.latest_tag }}
+          VERSION=${VERSION#v}
+          IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
 
-          echo "✅ Current version: $VERSION"
-          echo "✅ Next tag: $NEXT_TAG"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
 
-          echo "next_tag=$NEXT_TAG" >> $GITHUB_OUTPUT
-
-      - name: Get commit messages since last tag
-        id: commit_messages
-        run: |
-          TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
-          echo "✅ Getting commits since tag: $TAG"
-
-          if [ "$TAG" = "v0.0.0" ]; then
-            COMMITS=$(git log --pretty=format:"- %s")
+          if echo "$PR_TITLE" | grep -iq '^major:'; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            echo "🔴 Major version bump"
+          elif echo "$PR_TITLE" | grep -iq '^minor:'; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            echo "🟡 Minor version bump"
+          elif echo "$PR_TITLE" | grep -iq '^patch:'; then
+            PATCH=$((PATCH + 1))
+            echo "🟢 Patch version bump"
           else
-            COMMITS=$(git log ${TAG}..HEAD --pretty=format:"- %s")
+            echo "⚠️ No version bump keyword found in PR title."
+            exit 1
           fi
 
-          echo "✅ Collected commit messages:"
-          echo "$COMMITS"
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Next tag: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-          echo "release_notes<<EOF" >> $GITHUB_ENV
-          echo "$COMMITS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Create Git Tag
+      - name: Create Git tag
         run: |
-          echo "✅ Creating tag: ${{ steps.calculate_version.outputs.next_tag }}"
-          git tag -a ${{ steps.calculate_version.outputs.next_tag }} -m "Release ${{ steps.calculate_version.outputs.next_tag }}"
-          git push origin ${{ steps.calculate_version.outputs.next_tag }}
+          git tag ${{ steps.calculate_tag.outputs.new_tag }}
+          git push origin ${{ steps.calculate_tag.outputs.new_tag }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.calculate_version.outputs.next_tag }}
-          name: Release ${{ steps.calculate_version.outputs.next_tag }}
-          body: ${{ env.release_notes }}
+          tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
+          name: Release ${{ steps.calculate_tag.outputs.new_tag }}
+          body: |
+            자동 생성된 릴리즈입니다.
+            PR 제목: ${{ github.event.pull_request.title }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
