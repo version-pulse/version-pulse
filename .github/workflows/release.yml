@@ -105,6 +105,6 @@ jobs:
         with:
           tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
           name: version ${{ needs.calculate_tag.outputs.new_tag }}
-          body: ${{ fromJSON(needs.generate_release_note.outputs.release_note) }}
+          body: ${{ needs.generate_release_note.outputs.release_note }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
