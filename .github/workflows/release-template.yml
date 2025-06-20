@@ -69,35 +69,35 @@ jobs:
               }
             });
 
-            let releaseNote = `## 🚀 version-pulse ${{ inputs.tag_name }} (${new Date().toISOString().split('T')[0]})\n`;
+            let releaseNote = `# 🚀 version-pulse ${{ inputs.tag_name }} (${new Date().toISOString().split('T')[0]})\n`;
             releaseNote += `이번 릴리즈에서는 주요 기능 추가 및 개선 사항이 포함되어 있습니다.\n\n`;
 
             if (categories.fix.length > 0) {
-              releaseNote += `🐛 버그 수정 (Bug Fixes)\n`;
+              releaseNote += `### 🐛 버그 수정 (Bug Fixes)\n`;
               categories.fix.forEach(item => releaseNote += `- ${item.replace(/^Fix:\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
             if (categories.refactor.length > 0) {
-              releaseNote += `🛠 리팩토링 및 개선 (Refactoring & Improvements)\n`;
+              releaseNote += `### 🛠 리팩토링 및 개선 (Refactoring & Improvements)\n`;
               categories.refactor.forEach(item => releaseNote += `- ${item.replace(/^Refac:\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
             if (categories.feat.length > 0) {
-              releaseNote += `✨ 새로운 기능 (New Features)\n`;
+              releaseNote += `### ✨ 새로운 기능 (New Features)\n`;
               categories.feat.forEach(item => releaseNote += `- ${item.replace(/^Feat:\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
             if (categories.docs.length > 0 || categories.chore.length > 0 || categories.deploy.length > 0) {
-              releaseNote += `⚙️ 빌드 및 배포 관련 (Build & Deployment)\n`;
+              releaseNote += `### ⚙️ 빌드 및 배포 관련 (Build & Deployment)\n`;
               [...categories.docs, ...categories.chore, ...categories.deploy].forEach(item => releaseNote += `- ${item.replace(/^(Docs|Chore|Deploy):\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
             if (categories.other.length > 0) {
-              releaseNote += `🔹 기타 변경 사항\n`;
+              releaseNote += `### 🔹 기타 변경 사항\n`;
               categories.other.forEach(item => releaseNote += `- ${item}\n`);
               releaseNote += '\n';
             }
