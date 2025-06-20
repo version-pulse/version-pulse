@@ -103,5 +103,4 @@ jobs:
             }
 
             console.log("✅ Generated Release Note:\n" + releaseNote);
-            return releaseNote.replace(/\r?\n/g, '%0A');
-
+            return JSON.stringify(releaseNote);
