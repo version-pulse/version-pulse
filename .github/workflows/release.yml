@@ -8,6 +8,9 @@ on:
       - synchronize  # PR이 업데이트될 때도 실행
     branches:
       - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
