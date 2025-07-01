@@ -1,8 +1,11 @@
 name: Release to Maven Central
 
 on:
-  release:
-    types: [created]
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
 
 permissions:
   contents: write
