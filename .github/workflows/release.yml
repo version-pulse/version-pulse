@@ -106,3 +106,11 @@ jobs:
           body: ${{ fromJSON(needs.generate_release_note.outputs.release_note) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy_to_maven_central:
+    name: Deploy to Maven Central
+    needs:
+      - create_github_release
+    uses: version-pulse/version-pulse/.github/workflows/deploy.yml@main
+    with:
+      tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
