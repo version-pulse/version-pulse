@@ -123,6 +123,7 @@ jobs:
             if (todoSectionMatch.length > 0) {
               releaseNote += `---\n### 📌 추가 개선이 필요한 부분\n`;
               releaseNote += `${todoSectionMatch}\n`;
+
             }
             
             releaseNote += `\n---\n🔗 [Maven저장소](https://central.sonatype.com/artifact/io.github.version-pulse/app/${{ inputs.tag_name }})`;
