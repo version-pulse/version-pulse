@@ -39,7 +39,7 @@ jobs:
             });
             // PR 내용 부분 추출
             const prBody = pullRequest.body || '';
-            const workSectionMatch = prBody.match(/### 🔎 작업 내용\s*([\s\S]*?)(?:^### |\Z)/m);
+            const workSectionMatch = prBody.match(/### 🔎 작업 내용\s*([\s\S]*?)(?:^#### |\Z)/m);
             const workSection = workSectionMatch ? workSectionMatch[1].trim() : '';
             const todoSectionMatch = prBody.match(/### 🔧 추가 개선 필요 사항\s*([\s\S]*?)(?:^### |\Z)/m);
             const todoSection = todoSectionMatch ? todoSectionMatch[1].trim() : '';
