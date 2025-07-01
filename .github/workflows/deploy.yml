@@ -32,8 +32,7 @@ jobs:
           cache: 'maven'
       - name: Set version
         run: |
-          TAG=${{ github.event.release.tag_name }}
-          VERSION=${TAG#v}
+          VERSION=${{ inputs.tag_name }}
           mvn versions:set -DnewVersion=$VERSION
           mvn versions:commit
       - name: Build & Deploy
