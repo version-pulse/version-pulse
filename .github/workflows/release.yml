@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new_tag: ${{ steps.calculate_tag.outputs.new_tag }}
-
+    
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v4
@@ -76,12 +76,15 @@ jobs:
           NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
           echo "다음 생성할 태그: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          
 
       - name: 머지 커밋에 태그 생성 및 푸시
         run: |
           git tag ${{ steps.calculate_tag.outputs.new_tag }}
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
-  
+      - name: Debug calculate_tag output
+        run: | 
+          echo "Output from calculate_tag: '${{ steps.calculate_tag.outputs.new_tag }}'"
 
   generate_release_note:
     name: Generate Release Note
