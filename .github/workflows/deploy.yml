@@ -37,9 +37,12 @@ jobs:
         run: |
           VERSION=${{ inputs.tag_name }}
           echo "Tag name from input: $VERSION"
+          echo "$TAG_NAME"
           VERSION=${VERSION#v}
           mvn versions:set -DnewVersion=$VERSION
           mvn versions:commit
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
       - name: Build & Deploy
         run: |
           # -U force updates just to make sure we are using latest dependencies
