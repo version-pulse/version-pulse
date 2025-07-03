@@ -4,30 +4,21 @@ on:
   pull_request:
     types:
       - closed   # PR이 닫힐 때만 실행
-      - opened  # PR이 열릴 때도 실행
-      - synchronize  # PR이 업데이트될 때도 실행
     branches:
       - main
   workflow_dispatch:
+
 permissions:
   contents: write  # 태그 생성과 릴리즈 권한
 
 jobs:
-  create_tag_and_release:
+  calculate_tag:
     name: Create Tag and Release
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.calculate_tag.outputs.new_tag }}
 
     steps:
-      - name: PR 머지 여부 확인
-        if: ${{ github.event.pull_request.merged == true }}
-        run: echo "PR이 머지되어 작업을 진행합니다."
-
-      - name: 머지되지 않은 닫힘 시 종료
-        if: ${{ github.event.pull_request.merged != true }}
-        run: |
-          echo "PR은 닫혔지만 머지되지 않았으므로 태그와 릴리즈 생성을 건너뜁니다."
-          exit 0
-
       - name: 저장소 체크아웃
         uses: actions/checkout@v4
         with:
@@ -86,33 +77,40 @@ jobs:
           echo "다음 생성할 태그: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-#      - name: 머지 커밋에 태그 생성 및 푸시
-#        run: |
-#          MERGE_COMMIT_SHA="${{ github.event.pull_request.merge_commit_sha }}"
-#          echo "머지 커밋 SHA: $MERGE_COMMIT_SHA 에 태그 ${{ steps.calculate_tag.outputs.new_tag }} 생성"
-#
-#          git tag ${{ steps.calculate_tag.outputs.new_tag }} $MERGE_COMMIT_SHA
-#          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
-#
-#      - name: GitHub 릴리즈 생성
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
-#          name: Release ${{ steps.calculate_tag.outputs.new_tag }}
-#          body: |
-#            자동 생성된 릴리즈입니다.
-#            PR 제목: ${{ github.event.pull_request.title }}
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 머지 커밋에 태그 생성 및 푸시
+        run: |
+          git tag ${{ steps.calculate_tag.outputs.new_tag }}
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
+  
 
+  generate_release_note:
+    name: Generate Release Note
+    needs: calculate_tag
+    uses: version-pulse/version-pulse/.github/workflows/release-template.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
 
-      - name: Call release template
-        id: release_note_job
-        uses: version-pulse/version-pulse/.github/workflows/release-template.yml@main
+  create_github_release:
+    name: Create GitHub Release
+    needs:
+      - calculate_tag
+      - generate_release_note
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub 릴리즈 생성
+        uses: softprops/action-gh-release@v2
         with:
-          pr_number: ${{ github.event.pull_request.number }}
-          tag_name: ${{ steps.calculate_tag.outputs.new_tag }}
+          tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
+          name: version ${{ needs.calculate_tag.outputs.new_tag }}
+          body: ${{ fromJSON(needs.generate_release_note.outputs.release_note) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Echo release note
-        run: echo "${{ steps.release_note_job.outputs.release_note }}"
-
+  deploy_to_maven_central:
+    name: Deploy to Maven Central
+    needs:
+      - create_github_release
+    uses: version-pulse/version-pulse/.github/workflows/deploy.yml@main
+    with:
+      tag_name: ${{ needs.calculate_tag.outputs.new_tag }}

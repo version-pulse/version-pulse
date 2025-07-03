@@ -30,14 +30,31 @@ jobs:
         with:
           script: |
             const prNumber = ${{ inputs.pr_number }};
+            
+            // PR 본문 가져오기
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            // PR 내용 부분 추출
+            const prBody = pullRequest.body || '';
+            const workSectionMatch = prBody.match(/### 🔎 작업 내용\s*([\s\S]*?)(?:^#### |\Z)/m);
+            const workSection = workSectionMatch ? workSectionMatch[1].trim() : '';
+            const todoSectionMatch = prBody.match(/### 🔧 추가 개선 필요 사항\s*([\s\S]*?)(?:^### |\Z)/m);
+            const todoSection = todoSectionMatch ? todoSectionMatch[1].trim() : '';
+            
+            // 커밋 리스트 가져오기
             const { data: commits } = await github.rest.pulls.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
 
-            let commitMessages = commits.map(commit => commit.commit.message);
-
+            let commitMessages = commits.map(commit => ({
+              message: commit.commit.message,
+              sha: commit.sha
+            }));
             const categories = {
               feat: [],
               fix: [],
@@ -49,58 +66,66 @@ jobs:
               other: []
             };
 
-            commitMessages.forEach(message => {
+            commitMessages.forEach(({ message, sha }) => {
+              const shortSha = sha.substring(0, 7);
+            
               if (/.*Feat[:\s]/.test(message)) {
-                categories.feat.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.feat.push(`${parsed} (${shortSha})`);
               } else if (/.*Fix[:\s]/.test(message)) {
-                categories.fix.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.fix.push(`${parsed} (${shortSha})`);
               } else if (/.*Refac[:\s]/.test(message)) {
-                categories.refactor.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.refactor.push(`${parsed} (${shortSha})`);
               } else if (/.*Docs[:\s]/.test(message)) {
-                categories.docs.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.docs.push(`${parsed} (${shortSha})`);
               } else if (/.*Chore[:\s]/.test(message)) {
-                categories.chore.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.chore.push(`${parsed} (${shortSha})`);
               } else if (/.*Deploy[:\s]/.test(message)) {
-                categories.deploy.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.deploy.push(`${parsed} (${shortSha})`);
               } else if (/.*Test[:\s]/.test(message)) {
-                categories.test.push(message);
-              } else {
-                categories.other.push(message);
+                const parsed = message.replace(/^\[.*?\]\s*\w*:\s*/, '');
+                categories.test.push(`${parsed} (${shortSha})`);
               }
             });
 
             let releaseNote = `# 🚀 version-pulse ${{ inputs.tag_name }} (${new Date().toISOString().split('T')[0]})\n`;
-            releaseNote += `이번 릴리즈에서는 주요 기능 추가 및 개선 사항이 포함되어 있습니다.\n\n`;
+            releaseNote += `${workSection}\n\n`;
+
+            if (categories.feat.length > 0) {
+              releaseNote += `---\n### ✨ 새로운 기능\n`;
+              categories.feat.forEach(item => releaseNote += `- ${item.replace(/^Feat:\s*/, '')}\n`);
+              releaseNote += '\n';
+            }
 
             if (categories.fix.length > 0) {
-              releaseNote += `### 🐛 버그 수정 (Bug Fixes)\n`;
+              releaseNote += `---\n### 🐛 버그 수정 (Bug Fixes)\n`;
               categories.fix.forEach(item => releaseNote += `- ${item.replace(/^Fix:\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
             if (categories.refactor.length > 0) {
-              releaseNote += `### 🛠 리팩토링 및 개선 (Refactoring & Improvements)\n`;
+              releaseNote += `---\n### 🛠 리팩토링 및 개선\n`;
               categories.refactor.forEach(item => releaseNote += `- ${item.replace(/^Refac:\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
-            if (categories.feat.length > 0) {
-              releaseNote += `### ✨ 새로운 기능 (New Features)\n`;
-              categories.feat.forEach(item => releaseNote += `- ${item.replace(/^Feat:\s*/, '')}\n`);
-              releaseNote += '\n';
-            }
-
             if (categories.docs.length > 0 || categories.chore.length > 0 || categories.deploy.length > 0) {
-              releaseNote += `### ⚙️ 빌드 및 배포 관련 (Build & Deployment)\n`;
+              releaseNote += `---\n### ⚙️ 빌드 및 배포 관련\n`;
               [...categories.docs, ...categories.chore, ...categories.deploy].forEach(item => releaseNote += `- ${item.replace(/^(Docs|Chore|Deploy):\s*/, '')}\n`);
               releaseNote += '\n';
             }
 
-            if (categories.other.length > 0) {
-              releaseNote += `### 🔹 기타 변경 사항\n`;
-              categories.other.forEach(item => releaseNote += `- ${item}\n`);
-              releaseNote += '\n';
+            if (todoSectionMatch.length > 0) {
+              releaseNote += `---\n### 📌 추가 개선이 필요한 부분\n`;
+              releaseNote += `${todoSectionMatch}\n`;
             }
-
+            
+            releaseNote += `\n---\n🔗 [Maven저장소](https://central.sonatype.com/artifact/io.github.version-pulse/app/${{ inputs.tag_name }})`;
+            
             console.log("✅ Generated Release Note:\n" + releaseNote);
             return releaseNote;

@@ -103,8 +103,7 @@
           </execution>
         </executions>
         <configuration>
-          <keyname>${env.GPG_KEYNAME}</keyname>
-          <passphrase>${env.GPG_PASSPHASE}</passphrase>
+          <useAgent>false</useAgent>
           <gpgArguments>
             <argument>--pinentry-mode</argument>
             <argument>loopback</argument>
