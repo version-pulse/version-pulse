@@ -15,6 +15,8 @@ jobs:
     name: Deploy to Maven Central
     runs-on: ubuntu-latest
     steps:
+      - name: Debug input
+        run: echo "TAG = '${{ inputs.tag_name }}'"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Java
@@ -25,16 +27,21 @@ jobs:
           java-version: '17'
           check-latest: true
           server-id: 'central' # must match the serverId configured for the nexus-staging-maven-plugin
-          server-username: MAVEN_USERNAME # Env var that holds your MAVEN user name
-          server-password: MAVEN_PASSWORD # Env var that holds your MAVEN user pw
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
-          gpg-passphrase: GPG_PASSPHRASE # Env var that holds the key's passphrase
+          server-username: ${{ secrets.MAVEN_USERNAME }}
+          server-password: ${{ secrets.MAVEN_PASSWORD }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }} 
           cache: 'maven'
       - name: Set version
         run: |
           VERSION=${{ inputs.tag_name }}
+          echo "Tag name from input: $VERSION"
+          echo "$TAG_NAME"
+          VERSION=${VERSION#v}
           mvn versions:set -DnewVersion=$VERSION
           mvn versions:commit
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
       - name: Build & Deploy
         run: |
           # -U force updates just to make sure we are using latest dependencies
