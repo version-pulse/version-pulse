@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new_tag: ${{ steps.calculate_tag.outputs.new_tag }}
-    
+
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v4
@@ -84,7 +84,7 @@ jobs:
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.calculate_tag.outputs.new_tag }}
       - name: Debug calculate_tag output
         run: | 
-          echo "Output from calculate_tag: '${{ steps.calculate_tag.outputs.new_tag }}'"
+          echo "!! Output from calculate_tag: '${{ steps.calculate_tag.outputs.new_tag }}'"
 
   generate_release_note:
     name: Generate Release Note
@@ -118,4 +118,3 @@ jobs:
     uses: version-pulse/version-pulse/.github/workflows/deploy.yml@main
     with:
       tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
-    secrets: inherit
