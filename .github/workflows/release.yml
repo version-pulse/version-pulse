@@ -113,4 +113,5 @@ jobs:
       - create_github_release
     uses: version-pulse/version-pulse/.github/workflows/deploy.yml@main
     with:
-      tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
+      tag_name: ${{ github.event.release.tag_name }}
+    secrets: inherit
