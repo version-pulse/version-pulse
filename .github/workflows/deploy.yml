@@ -16,54 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Java
-        uses: actions/setup-java@v3 # Does also set up Maven and GPG
+        uses: actions/setup-java@v4 # Does also set up Maven and GPG
         with:
           distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
-          java-package: 'jdk'
           java-version: '17'
-          check-latest: true
           server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
-          cache: 'maven'
       - name: Set version
         run: |
           VERSION=${{ inputs.tag_name }}
           VERSION=${VERSION#v}
           mvn versions:set -DnewVersion=$VERSION
           mvn versions:commit
-      - name: Write settings.xml manually
-        run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
-          <settings>
-            <servers>
-              <server>
-                <id>central</id>
-                <username>${{ secrets.MAVEN_USERNAME }}</username>
-                <password>${{ secrets.MAVEN_PASSWORD }}</password>
-              </server>
-              <server>
-                <id>gpg.passphrase</id>
-                <passphrase>${{ secrets.GPG_PASSPHRASE }}</passphrase>
-              </server>
-            </servers>
-          </settings>
-          EOF
-      - name: Show settings.xml (redacted)
-        run: |
-          echo "settings.xml contents (without secrets):"
-          sed -e 's/<username>.*<\/username>/<username>***<\/username>/' \
-              -e 's/<password>.*<\/password>/<password>***<\/password>/' \
-              -e 's/<passphrase>.*<\/passphrase>/<passphrase>***<\/passphrase>/' \
-              ~/.m2/settings.xml
       - name: Build & Deploy
-        run: |
-          # -U force updates just to make sure we are using latest dependencies
-          # -B Batch mode (do not ask for user input), just in case
-          # -P activate profile
-          mvn -U -B clean deploy
+        run: mvn -U -B clean deploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
