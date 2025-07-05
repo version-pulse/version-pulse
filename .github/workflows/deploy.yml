@@ -6,6 +6,15 @@ on:
       tag_name:
         required: true
         type: string
+    secrets:
+      MAVEN_USERNAME:
+        required: true
+      MAVEN_PASSWORD:
+        required: true
+      GPG_PASSPHRASE:
+        required: true
+      GPG_PRIVATE_KEY:
+        required: true
 
 permissions:
   contents: write
@@ -23,10 +32,10 @@ jobs:
           distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
           java-version: '17'
           server-id: 'central'
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
+          server-username: ${{ secrets.MAVEN_USERNAME }}
+          server-password: ${{ secrets.MAVEN_PASSWORD }}
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Set version
         run: |
           VERSION=${{ inputs.tag_name }}
