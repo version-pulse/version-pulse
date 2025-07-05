@@ -6,6 +6,15 @@ on:
       tag_name:
         required: true
         type: string
+    secrets:
+      MAVEN_USERNAME:
+        required: true
+      MAVEN_PASSWORD:
+        required: true
+      GPG_PASSPHRASE:
+        required: true
+      GPG_PRIVATE_KEY:
+        required: true
 
 permissions:
   contents: write

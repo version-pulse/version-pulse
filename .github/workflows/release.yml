@@ -113,5 +113,10 @@ jobs:
       - calculate_tag
       - create_github_release
     uses: version-pulse/version-pulse/.github/workflows/deploy.yml@main
+    secrets:
+      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
     with:
       tag_name: ${{ needs.calculate_tag.outputs.new_tag }}
