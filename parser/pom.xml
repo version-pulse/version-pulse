@@ -4,7 +4,7 @@
     <groupId>io.github.version-pulse</groupId>
     <artifactId>version-pulse</artifactId>
 	<relativePath>../pom.xml</relativePath>
-	<version>0.1.1</version>  <!-- 부모에서 상속받은 버전 -->
+	<version>0.2.4</version>  <!-- 부모에서 상속받은 버전 -->
   </parent>
   <artifactId>parser</artifactId>
   <dependencies>

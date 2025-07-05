@@ -2,11 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.version-pulse</groupId>
   <artifactId>version-pulse</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.4</version>
   <packaging>pom</packaging>
 
   <properties>
-    <project.version>0.1.1</project.version>
+    <project.version>0.2.4</project.version>
   </properties>
 
   <name>${project.groupId}:${project.artifactId}</name>
