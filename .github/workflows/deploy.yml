@@ -54,7 +54,7 @@ jobs:
             </servers>
           </settings>
           EOF
-      - name: Show settings.xml (redacted)
+      - name: Show settings.xml
         run: |
           echo "settings.xml contents (without secrets):"
           sed -e 's/<username>.*<\/username>/<username>***<\/username>/' \
