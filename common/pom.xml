@@ -6,6 +6,7 @@
     <version>0.2.4</version>
   </parent>
   <artifactId>common</artifactId>
+  <name>version-pulse-common</name>
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
     <dependency>

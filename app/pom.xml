@@ -12,6 +12,7 @@
 
   <artifactId>app</artifactId>
   <packaging>jar</packaging>
+  <name>version-pulse-app</name>
 
   <dependencies>
     <dependency>
